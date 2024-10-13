@@ -18,17 +18,20 @@ const AssetTable = () => {
     </TableRow>
   </TableHeader>
   <TableBody>
-    <TableRow>
+    {[1,1,1,1,1,1,1,1,1,1,1].map((item,index)=> <TableRow key={index}>
       <TableCell className="font-medium flex items-center gap-2">
         <Avatar className="-z-50">
             <AvatarImage src="https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400" />
         </Avatar>
         <span>Bitcoin</span>
       </TableCell>
-      <TableCell>Paid</TableCell>
-      <TableCell>Credit Card</TableCell>
+      <TableCell>BTC</TableCell>
+      <TableCell>16812676683</TableCell>
+      <TableCell>16812676683</TableCell>
+      <TableCell>16812676683</TableCell>
       <TableCell className="text-right">$250.00</TableCell>
-    </TableRow>
+    </TableRow>)}
+    
   </TableBody>
 </Table>
 
