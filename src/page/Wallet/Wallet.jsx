@@ -105,8 +105,8 @@ export const Wallet = () => {
 
           <div className="space-y-5">
 
-            <div>
-              <Card className="lg:w-[50%] px-5 flex justify-between items-center p-2">  ///3.24.10
+            {[1,1,1,1,1,1].map((item,i)=> <div key={i}>
+              <Card className="px-5 flex justify-between items-center p-2">  
                 <div className="flex items-center gap-5">
                   <Avatar>
                    <AvatarFallback>
@@ -121,9 +121,12 @@ export const Wallet = () => {
                   </div>
 
                 </div>
+                <div>
+                  <p className={`text-green-500`}>999 USD</p>
+                </div>
 
               </Card>
-            </div>
+            </div> )}
 
           </div>
 
