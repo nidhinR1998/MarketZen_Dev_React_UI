@@ -147,7 +147,7 @@ export const Wallet = () => {
             {wallet.transactions.map((item,i)=> <div key={i}>
               <Card className="px-5 flex justify-between items-center p-2">  
                 <div className="flex items-center gap-5">
-                  <Avatar onClick={handleFetchWalletTransaction()}>
+                  <Avatar onClick={handleFetchWalletTransaction}>
                    <AvatarFallback>
                    <ShuffleIcon className=""/>
                    </AvatarFallback>
