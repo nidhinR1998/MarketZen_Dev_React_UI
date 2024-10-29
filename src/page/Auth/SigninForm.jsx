@@ -2,10 +2,15 @@ import { Button } from '@/components/ui/button'
 import { DialogClose } from '@/components/ui/dialog'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { login } from '@/State/Auth/Action'
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 const SigninForm = () => {
+    const dispatch=useDispatch()
+    const navigate=useNavigate()
     const form = useForm({
         resolver: "",
         defaultValues: {
@@ -16,8 +21,9 @@ const SigninForm = () => {
 
     })
     const onSubmit = (data) => {
-        console.log(data)
-    }
+        dispatch(login({data,navigate}))
+        console.log(data);
+    };
     return (
         <div>
           <h1 className="text-xl font-bold text-center pb-3">Login</h1>

@@ -1,8 +1,14 @@
 import { thunk } from "redux-thunk";
+import authReducer from "./Auth/Reducer";
 
-const { combineReducers, legacy_createStore, applyMiddleware } = require("redux");
+import { combineReducers, legacy_createStore, applyMiddleware } from "redux";
+import coinReducer from "./Coin/Reducer";
+import walletReducer from "./Wallet/Reducer";
 
 const rootReducer=combineReducers({
+    auth:authReducer,
+    coin:coinReducer,
+    wallet:walletReducer
 
 });
 

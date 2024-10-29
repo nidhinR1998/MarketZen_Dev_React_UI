@@ -1,4 +1,4 @@
-.authContainer{
+/* .authContainer{
     background-image: url("https://zosh-treading.vercel.app/assets/crypto-7678815_1920-Lm8m_thz.jpg");
     height: 100vh;
     width: 100%;
@@ -8,5 +8,18 @@
 }
 
 .bgBlure{
+    backdrop-filter: blur(10px);
+} */
+
+.authContainer {
+    background-image: url("src/assets/logo.jpg"); 
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.bgBlure {
     backdrop-filter: blur(10px);
 }
