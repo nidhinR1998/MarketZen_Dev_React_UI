@@ -42,7 +42,7 @@ export const Wallet = () => {
   },[orderId,paymentId,razorpayPaymentId])
 
   const handleFetchUserWallet=()=>{
-    dispatch(getUserWallet(localStorage.getItem("jwt")))
+    dispatch(getUserWallet(localStorage.getItem("jwt")));
   };
 
   const handleFetchWalletTransaction = () => {
