@@ -4,7 +4,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useDispatch, useSelector } from 'react-redux'
 import { getUserAsset } from '@/State/Asset/Action'
 import { store } from '@/State/Store'
+import { useNavigate } from 'react-router-dom'
 const Portfolio = () => {
+  const navigate = useNavigate();
   const dispatch=useDispatch();
   const {asset}=useSelector(store=>store)
   useEffect(()=> {
@@ -29,7 +31,8 @@ const Portfolio = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {asset.userAssets.map((item, index) => <TableRow key={index}>
+          {asset.userAssets.map((item, index) => 
+          <TableRow key={item.coin.id} onClick={() => navigate(`/market/${item.coin.id}`)} className="cursor-pointer">
             <TableCell className="font-medium flex items-center gap-2">
               <Avatar className="-z-50">
                 <AvatarImage src={item.coin.image} />
