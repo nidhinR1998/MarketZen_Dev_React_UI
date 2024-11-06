@@ -7,8 +7,8 @@ import SigninForm from "./SigninForm"
 
 const Auth = () => {
 
-  const navigate=useNavigate()
-  const location=useLocation()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   return (
     <div className='h-screen relative authContainer'>
@@ -21,42 +21,42 @@ const Auth = () => {
 
           <h1 className="text-6xl font-bold pb-9">Market Zen</h1>
 
-          {location.pathname=="/signup"  ?  (
+          {location.pathname == "/signup" ? (
             <section className="w-full">
-            <SignupForm/>
-            <div className="flex items-center justify-center">
-              <span>Have already account ?</span>
-              <Button onClick={()=>navigate("/sigin")} variant="ghost">
-                SingIn
-              </Button>
+              <SignupForm />
+              <div className="flex items-center justify-center">
+                <span>Have already account ?</span>
+                <Button onClick={() => navigate("/sigin")} variant="ghost">
+                  SingIn
+                </Button>
 
-            </div>
-          </section>): location.pathname=="/forgot-password"?(<section className="w-full">
-<ForgotPasswordForm/>
-<div className="flex items-center justify-center mt-2">
-              <span>Back to Login ?</span>
-              <Button onClick={()=>navigate("/sigin")} variant="ghost">
-                SingIn
-              </Button>
+              </div>
+            </section>) : location.pathname == "/forgot-password" ? (<section className="w-full">
+              <ForgotPasswordForm />
+              <div className="flex items-center justify-center mt-2">
+                <span>Back to Login ?</span>
+                <Button onClick={() => navigate("/sigin")} variant="ghost">
+                  SingIn
+                </Button>
 
-            </div>
-          </section>):(<section className="w-full">
-            <SigninForm/>
-            <div className="flex items-center justify-center">
-              <span>{"Don't have account ?"}</span>
-              <Button onClick={()=>navigate("/signup")} variant="ghost">
-                SingUn
-              </Button>
+              </div>
+            </section>) : (<section className="w-full">
+              <SigninForm />
+              <div className="flex items-center justify-center">
+                <span>{"Don't have account ?"}</span>
+                <Button onClick={() => navigate("/signup")} variant="ghost">
+                  SingUp
+                </Button>
 
-            </div>
+              </div>
 
-            <div className="mt-10">
-              
-              <Button className="w-full py-5" onClick={()=>navigate("/forgot-password")} variant="outline">
-                Forgot Password
-              </Button>
+              <div className="mt-10">
 
-            </div>
+                <Button className="w-full py-5" onClick={() => navigate("/forgot-password")} variant="outline">
+                  Forgot Password
+                </Button>
+
+              </div>
             </section>)}
 
         </div>

@@ -12,26 +12,29 @@ import Profile from "./page/Profile/Profile";
 import SearchCoin from "./page/Search/SearchCoin";
 import Notfound from "./page/Notfound/Notfound";
 import Auth from "./page/Auth/Auth";
+import EmailOTPForm from "./page/Auth/EamilOTPForm"; // Import EmailOTPForm
 import { useDispatch, useSelector } from "react-redux";
 import { store } from "./State/Store";
 import { useEffect } from "react";
 import { getUser } from "./State/Auth/Action";
-import useAuthRedirect from './hooks/useAuthRedirect'; // Import the custom hook
+import ChangePasswordForm from "./page/Auth/ChangePasswordForm";
 
 function App() {
     const { auth } = useSelector(store => store);
     const dispatch = useDispatch();
 
-    console.log("auth......", auth);
-
     useEffect(() => {
+        // Set expiration time if JWT exists
         if (auth.jwt) {
-            localStorage.setItem('expirationTime', Date.now() + 3600000); // Set expiration time
+            localStorage.setItem('expirationTime', Date.now() + 3600000); // Set expiration time to 1 hour
         }
-        dispatch(getUser(auth.jwt || localStorage.getItem("jwt")));
+        
+        // Dispatch getUser if JWT is available either in state or localStorage
+        const jwt = auth.jwt || localStorage.getItem("jwt");
+        if (jwt) {
+            dispatch(getUser(jwt));
+        }
     }, [auth.jwt, dispatch]);
-
-    useAuthRedirect(); // Call the custom hook
 
     return (
         <>
@@ -49,14 +52,25 @@ function App() {
                         <Route path="/watchlist" element={<Watchlist />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/search" element={<SearchCoin />} />
-                        <Route path="*" element={<Notfound />} />
+                        {/* Email OTP and Change Password routes accessible without auth */}
+                        {/* <Route path="/email-otp" element={<EmailOTPForm />} /> 
+                        <Route path="/change-password" element={<ChangePasswordForm />} />
+                        <Route path="*" element={<Notfound />} /> */}
                     </Routes>
                 </div>
             ) : (
-                <Auth />
+                // Public routes or redirect to Auth
+                <Routes>
+                    <Route path="/email-otp" element={<EmailOTPForm />} /> 
+                    <Route path="/change-password" element={<ChangePasswordForm />} />
+                    <Route path="*" element={<Auth />} />
+                </Routes>
             )}
         </>
     );
 }
 
 export default App;
+
+
+

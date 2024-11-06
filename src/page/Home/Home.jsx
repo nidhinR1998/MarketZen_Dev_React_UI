@@ -17,6 +17,8 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
+import { getBusinessNews, getCryptoNews } from '@/State/News/Action';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 const Home = () => {
     const [category, setCategory] = useState("all");
@@ -24,7 +26,7 @@ const Home = () => {
     const [isBotRelease, setIsBotRelease] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
-    const { coin } = useSelector((store) => store);
+    const { coin, news } = useSelector((store) => store);
     const dispatch = useDispatch();
 
     const handleBotRelease = () => setIsBotRelease(!isBotRelease);
@@ -44,6 +46,57 @@ const Home = () => {
     useEffect(() => {
         dispatch(getCoinList(currentPage));
     }, [currentPage]);
+
+    useEffect(() => {
+        const jwt = localStorage.getItem("jwt");
+        if (jwt) {
+            dispatch(getBusinessNews(jwt));
+            dispatch(getCryptoNews(jwt));
+        } else {
+            console.error("JWT token not found in localStorage");
+        }
+    }, []);
+
+
+    // useEffect(() => {
+    //     const fetchNews = async () => {
+    //         const jwt = localStorage.getItem("jwt");
+
+    //         if (!jwt) {
+    //             console.error("JWT token not found in localStorage");
+    //             return;
+    //         }
+
+    //         try {
+    //             dispatch(getCryptoNews(jwt));
+    //         } catch (error) {
+    //             console.error("Failed to load crypto news:", error);
+    //         }
+    //     };
+
+    //     fetchNews();
+    // }, []);
+
+    // useEffect(() => {
+    //     const fetchNews = async () => {
+    //         const jwt = localStorage.getItem("jwt");
+
+    //         if (!jwt) {
+    //             console.error("JWT token not found in localStorage");
+    //             return;
+    //         }
+
+    //         try {
+    //             dispatch(getBusinessNews(jwt));
+    //         } catch (error) {
+    //             console.error("Failed to load business news:", error);
+    //         }
+    //     };
+
+    //     fetchNews();
+    // }, []);
+
+
 
     return (
         <div className="relative p-4">
@@ -101,20 +154,60 @@ const Home = () => {
                 </div>
             </div>
 
-              {/* News Section*/}
-            <div className="relative p-4">              
-                <div className="flex flex-col lg:flex-row">
-
-                    {/* News Section for Busines */}
-                    <div className="lg:w-full lg:border-r">
-                        <p>News Section Busines</p>
+            {/* News Section */}
+            <div className="relative p-4">
+                <div className="flex flex-col lg:flex-row gap-4">
+                    {/* Business News */}
+                    <div className="lg:w-1/2">
+                        <h2 className="text-xl font-bold mb-4">BUSINESS NEWS</h2>
+                        {news.businessArticles?.map((item, index) => (
+                            <Card key={index} className="mb-6 border shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105 flex">
+                                {item.image && (
+                                    <img
+                                        src={item.image}
+                                        alt={item.title}
+                                        className="w-32 h-32 object-cover rounded-l-md"
+                                    />
+                                )}
+                                <div className="flex-1 p-4">
+                                    <CardTitle className="text-lg font-semibold hover:underline">{item.title}</CardTitle>
+                                    <CardDescription className="text-sm text-gray-500">{new Date(item.publishedAt).toLocaleDateString()}</CardDescription>
+                                    <CardContent>
+                                        <p className="text-gray-700 mb-2">{item.description}</p>
+                                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Read more</a>
+                                    </CardContent>
+                                </div>
+                            </Card>
+                        ))}
                     </div>
-                    {/* News Section for Crypto */}
-                    <div className="w-full lg:w-full">
-                        <p>News Section Crypto</p>
+
+                    {/* Crypto News */}
+                    <div className="lg:w-1/2">
+                        <h2 className="text-xl font-bold mb-4">CRYPTO NEWS</h2>
+                        {news.cryptoArticles?.map((article, index) => (
+                            <Card key={index} className="mb-6 border shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105 flex">
+                                {article.image && (
+                                    <img
+                                        src={article.image}
+                                        alt={article.title}
+                                        className="w-32 h-32 object-cover rounded-l-md"
+                                    />
+                                )}
+                                <div className="flex-1 p-4">
+                                    <CardTitle className="text-lg font-semibold hover:underline">{article.title}</CardTitle>
+                                    <CardDescription className="text-sm text-gray-500">{new Date(article.publishedAt).toLocaleDateString()}</CardDescription>
+                                    <CardContent>
+                                        <p className="text-gray-700 mb-2">{article.description}</p>
+                                        <a href={article.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Read more</a>
+                                    </CardContent>
+                                </div>
+                            </Card>
+                        ))}
                     </div>
                 </div>
             </div>
+
+
 
             {/* Chatbot Section */}
             <section className="fixed bottom-5 right-5 z-40 flex flex-col justify-end items-end gap-2">

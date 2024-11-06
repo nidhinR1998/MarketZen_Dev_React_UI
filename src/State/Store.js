@@ -8,6 +8,7 @@ import withdrawalReducer from "./Withdrawal/Reducer";
 import orderReducer from "./Order/Reducer";
 import assetReducer from "./Asset/Reducer";
 import watchlistReducer from "./Watchlist/Reducer";
+import newsReducer from "./News/Reducer";
 
 const rootReducer=combineReducers({
     auth:authReducer,
@@ -17,6 +18,7 @@ const rootReducer=combineReducers({
     order:orderReducer,
     asset:assetReducer,
     watchlist:watchlistReducer,
+    news:newsReducer,
 
 });
 
