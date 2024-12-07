@@ -9,6 +9,7 @@ import orderReducer from "./Order/Reducer";
 import assetReducer from "./Asset/Reducer";
 import watchlistReducer from "./Watchlist/Reducer";
 import newsReducer from "./News/Reducer";
+import aiChatBotReducer from "./AiChatBote/Reduced";
 
 const rootReducer=combineReducers({
     auth:authReducer,
@@ -19,6 +20,7 @@ const rootReducer=combineReducers({
     asset:assetReducer,
     watchlist:watchlistReducer,
     news:newsReducer,
+    aiChatBot: aiChatBotReducer,
 
 });
 

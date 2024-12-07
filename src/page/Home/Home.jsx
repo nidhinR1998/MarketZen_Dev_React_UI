@@ -3,7 +3,7 @@ import AssetTable from './AssetTable';
 import StockChart from './StockChart';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Cross1Icon, DotIcon } from '@radix-ui/react-icons';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Send } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { getCoinList, getTop50CoinList } from '@/State/Coin/Action';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,25 +19,49 @@ import {
 } from "@/components/ui/pagination"
 import { getBusinessNews, getCryptoNews } from '@/State/News/Action';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { fetchBotResponse } from '@/State/AiChatBote/Action';
 
 const Home = () => {
+    const { chatHistory } = useSelector((state) => state.aiChatBot);
     const [category, setCategory] = useState("all");
     const [inputValue, setInputValue] = useState("");
-    const [isBotRelease, setIsBotRelease] = useState(false);
+    const [isBotRelease, setIsBotRelease] = useState(false); // Ensure this is initialized early
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const { coin, news } = useSelector((store) => store);
+    const [chatHistoryLocal, setChatHistory] = useState([]); // For managing local chat history
+
     const dispatch = useDispatch();
+    const { coin, news } = useSelector((store) => store);
+    const itemsPerPage = 10;
 
     const handleBotRelease = () => setIsBotRelease(!isBotRelease);
     const handleCategory = (value) => setCategory(value);
     const handleChange = (e) => setInputValue(e.target.value);
     const handleKeyPress = (event) => {
-        if (event.key === "Enter") {
-            console.log(inputValue);
+        if (event.key === "Enter" && inputValue.trim() !== "") {
+            handleSendMessage();
+        }
+    };
+
+    const handleSendMessage = () => {
+        if (inputValue.trim() !== "") {
+            setChatHistory((prev) => [
+                ...prev,
+                { role: "user", text: inputValue },
+            ]);
+            dispatch(fetchBotResponse(inputValue));
             setInputValue("");
         }
     };
+
+    // Initialize chatbot message when released
+    useEffect(() => {
+        if (isBotRelease) {
+            setChatHistory((prev) => [
+                ...prev,
+                { role: "bot", text: "Hi there! How can I help you today?" },
+            ]);
+        }
+    }, [isBotRelease]);
 
     useEffect(() => {
         dispatch(getTop50CoinList());
@@ -48,55 +72,22 @@ const Home = () => {
     }, [currentPage]);
 
     useEffect(() => {
-        const jwt = localStorage.getItem("jwt");
-        if (jwt) {
-            dispatch(getBusinessNews(jwt));
-            dispatch(getCryptoNews(jwt));
-        } else {
-            console.error("JWT token not found in localStorage");
-        }
+        const fetchNews = async () => {
+            const jwt = localStorage.getItem("jwt");
+            if (!jwt) {
+                console.error("JWT token not found in localStorage");
+                return;
+            }
+            try {
+                dispatch(getCryptoNews(jwt));
+                dispatch(getBusinessNews(jwt));
+            } catch (error) {
+                console.error("Failed to load news:", error);
+            }
+        };
+
+        fetchNews();
     }, []);
-
-
-    // useEffect(() => {
-    //     const fetchNews = async () => {
-    //         const jwt = localStorage.getItem("jwt");
-
-    //         if (!jwt) {
-    //             console.error("JWT token not found in localStorage");
-    //             return;
-    //         }
-
-    //         try {
-    //             dispatch(getCryptoNews(jwt));
-    //         } catch (error) {
-    //             console.error("Failed to load crypto news:", error);
-    //         }
-    //     };
-
-    //     fetchNews();
-    // }, []);
-
-    // useEffect(() => {
-    //     const fetchNews = async () => {
-    //         const jwt = localStorage.getItem("jwt");
-
-    //         if (!jwt) {
-    //             console.error("JWT token not found in localStorage");
-    //             return;
-    //         }
-
-    //         try {
-    //             dispatch(getBusinessNews(jwt));
-    //         } catch (error) {
-    //             console.error("Failed to load business news:", error);
-    //         }
-    //     };
-
-    //     fetchNews();
-    // }, []);
-
-
 
     return (
         <div className="relative p-4">
@@ -209,50 +200,68 @@ const Home = () => {
 
 
 
-            {/* Chatbot Section */}
-            <section className="fixed bottom-5 right-5 z-40 flex flex-col justify-end items-end gap-2">
-                {isBotRelease && (
-                    <div className="rounded-md w-72 md:w-80 h-80 md:h-[70vh] bg-slate-900">
-                        <div className="flex justify-between items-center border-b px-6 h-12">
-                            <p>Chat Bot</p>
-                            <Button onClick={handleBotRelease} variant="ghost" size="icon">
-                                <Cross1Icon />
-                            </Button>
-                        </div>
-                        <div className="flex flex-col overflow-y-auto gap-5 px-5 py-2 h-64 md:h-[76%] scroll-container">
-                            <div className="self-start pb-5 w-auto">
-                                <div className="px-5 py-2 rounded-md bg-slate-800 w-auto">
-                                    <p>Hi, Market Zen</p>
-                                    <p>You can ask crypto-related questions</p>
-                                </div>
-                            </div>
-                            {[1, 1, 1, 1].map((item, i) => (
-                                <div key={i} className={`${i % 2 === 0 ? "self-start" : "self-end"} pb-5 w-auto`}>
-                                    <div className="px-5 py-2 rounded-md bg-slate-800 w-auto">
-                                        <p>{i % 2 === 0 ? "Prompt: Who are you?" : "Answer: Hi, Market Zen"}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="border-t h-12">
-                            <Input
-                                className="w-full h-full outline-none"
-                                placeholder="Write prompt"
-                                onChange={handleChange}
-                                value={inputValue}
-                                onKeyPress={handleKeyPress}
-                            />
+{/* Chatbot Section */}
+<section className="fixed bottom-5 right-5 z-40 flex flex-col justify-end items-end gap-2">
+    {isBotRelease && (
+        <div className="rounded-md w-96 md:w-[28rem] h-[28rem] md:h-[70vh] bg-slate-900 shadow-lg border border-gray-700">
+            {/* Chatbot Header */}
+            <div className="flex justify-between items-center border-b border-gray-700 px-6 py-3 bg-slate-800 text-white">
+                <p className="font-bold text-lg">CoinBot</p>
+                <Button onClick={handleBotRelease} variant="ghost" size="icon">
+                    <Cross1Icon className="text-white" />
+                </Button>
+            </div>
+
+            {/* Chat History */}
+            <div className="flex flex-col overflow-y-auto gap-4 px-4 py-2 h-[75%] scroll-container bg-slate-950">
+                {chatHistory.map((chat, index) => (
+                    <div
+                        key={index}
+                        className={`flex ${
+                            chat.role === "user" ? "justify-start" : "justify-end"
+                        }`}
+                    >
+                        <div
+                            className={`max-w-[70%] px-4 py-2 rounded-lg ${
+                                chat.role === "user"
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-gray-800 text-white"
+                            } shadow`}
+                        >
+                            <p className="text-sm">{chat.text}</p>
                         </div>
                     </div>
-                )}
+                ))}
+            </div>
 
-                <div className="relative w-40 cursor-pointer">
-                    <Button onClick={handleBotRelease} className="w-full h-12 gap-2 items-center">
-                        <MessageCircle size={30} className="fill-[#1e293b] -rotate-90 stroke-none" />
-                        <span className="text-2xl">Chat Bot</span>
-                    </Button>
-                </div>
-            </section>
+            {/* Input Box */}
+            <div className="border-t border-gray-700 flex items-center bg-slate-800">
+                <Input
+                    className="w-full h-full px-4 py-2 text-white bg-slate-800 outline-none placeholder-gray-400"
+                    placeholder="Write a message..."
+                    onChange={(e) => setInputValue(e.target.value)}
+                    value={inputValue}
+                    onKeyPress={handleKeyPress}
+                />
+                <Button
+                    className="h-full px-5 text-white"
+                    variant="ghost"
+                    onClick={handleSendMessage}
+                >
+                    <Send size={20} />
+                </Button>
+            </div>
+        </div>
+    )}
+    {/* Chatbot Toggle Button */}
+    <div className="relative w-40 cursor-pointer">
+        <Button onClick={handleBotRelease} className="w-full h-12 gap-2 items-center bg-blue-600 text-white">
+            <MessageCircle size={30} className="fill-white -rotate-90 stroke-none" />
+            <span className="text-2xl font-semibold">CoinBot</span>
+        </Button>
+    </div>
+</section>
+
         </div>
     );
 };

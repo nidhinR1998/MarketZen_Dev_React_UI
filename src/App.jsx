@@ -53,9 +53,10 @@ function App() {
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/search" element={<SearchCoin />} />
                         {/* Email OTP and Change Password routes accessible without auth */}
-                        {/* <Route path="/email-otp" element={<EmailOTPForm />} /> 
+                        <Route path="/email-otp" element={<EmailOTPForm />} /> 
                         <Route path="/change-password" element={<ChangePasswordForm />} />
-                        <Route path="*" element={<Notfound />} /> */}
+                        {/* <Route path="*" element={<Notfound />} /> */}
+                        <Route path="*" element={<Home />} />
                     </Routes>
                 </div>
             ) : (
