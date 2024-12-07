@@ -33,31 +33,47 @@ const Home = () => {
     const { coin, news } = useSelector((store) => store);
     const itemsPerPage = 10;
 
-    const handleBotRelease = () => setIsBotRelease(!isBotRelease);
-    const handleCategory = (value) => setCategory(value);
-    const handleChange = (e) => setInputValue(e.target.value);
-    const handleKeyPress = (event) => {
-        if (event.key === "Enter" && inputValue.trim() !== "") {
-            handleSendMessage();
+    const handleBotRelease = () => {
+        setIsBotRelease(!isBotRelease);
+
+        // Clear local chat history when chatbot is closed
+        if (isBotRelease) {
+            setChatHistory([]);
         }
     };
 
+    const handleCategory = (value) => setCategory(value);
+
     const handleSendMessage = () => {
         if (inputValue.trim() !== "") {
+            // Update local chat history with the user's message
             setChatHistory((prev) => [
                 ...prev,
                 { role: "user", text: inputValue },
             ]);
+
+            // Dispatch action to fetch bot response
             dispatch(fetchBotResponse(inputValue));
+
+            // Clear the input field
             setInputValue("");
         }
     };
 
+    useEffect(() => {
+        // Append only bot responses to the local chat history
+        if (chatHistory.length > 0) {
+            const latestMessage = chatHistory[chatHistory.length - 1];
+            if (latestMessage.role === "bot") {
+                setChatHistory((prev) => [...prev, latestMessage]);
+            }
+        }
+    }, [chatHistory]);
+
     // Initialize chatbot message when released
     useEffect(() => {
         if (isBotRelease) {
-            setChatHistory((prev) => [
-                ...prev,
+            setChatHistory([
                 { role: "bot", text: "Hi there! How can I help you today?" },
             ]);
         }
@@ -88,6 +104,7 @@ const Home = () => {
 
         fetchNews();
     }, []);
+
 
     return (
         <div className="relative p-4">
@@ -198,69 +215,65 @@ const Home = () => {
                 </div>
             </div>
 
-
-
-{/* Chatbot Section */}
-<section className="fixed bottom-5 right-5 z-40 flex flex-col justify-end items-end gap-2">
-    {isBotRelease && (
-        <div className="rounded-md w-96 md:w-[28rem] h-[28rem] md:h-[70vh] bg-slate-900 shadow-lg border border-gray-700">
-            {/* Chatbot Header */}
-            <div className="flex justify-between items-center border-b border-gray-700 px-6 py-3 bg-slate-800 text-white">
-                <p className="font-bold text-lg">CoinBot</p>
-                <Button onClick={handleBotRelease} variant="ghost" size="icon">
-                    <Cross1Icon className="text-white" />
-                </Button>
-            </div>
-
-            {/* Chat History */}
-            <div className="flex flex-col overflow-y-auto gap-4 px-4 py-2 h-[75%] scroll-container bg-slate-950">
-                {chatHistory.map((chat, index) => (
-                    <div
-                        key={index}
-                        className={`flex ${
-                            chat.role === "user" ? "justify-start" : "justify-end"
-                        }`}
-                    >
-                        <div
-                            className={`max-w-[70%] px-4 py-2 rounded-lg ${
-                                chat.role === "user"
-                                    ? "bg-blue-600 text-white"
-                                    : "bg-gray-800 text-white"
-                            } shadow`}
-                        >
-                            <p className="text-sm">{chat.text}</p>
-                        </div>
+            {/* Chatbot Section */}
+            <section className="fixed bottom-5 right-5 z-40 flex flex-col justify-end items-end gap-2">
+            {isBotRelease && (
+                <div className="rounded-md w-96 md:w-[28rem] h-[28rem] md:h-[70vh] bg-slate-900 shadow-lg border border-gray-700">
+                    {/* Chatbot Header */}
+                    <div className="flex justify-between items-center border-b border-gray-700 px-6 py-3 bg-slate-800 text-white">
+                        <p className="font-bold text-lg">CoinBot</p>
+                        <Button onClick={handleBotRelease} variant="ghost" size="icon">
+                            <Cross1Icon className="text-white" />
+                        </Button>
                     </div>
-                ))}
-            </div>
 
-            {/* Input Box */}
-            <div className="border-t border-gray-700 flex items-center bg-slate-800">
-                <Input
-                    className="w-full h-full px-4 py-2 text-white bg-slate-800 outline-none placeholder-gray-400"
-                    placeholder="Write a message..."
-                    onChange={(e) => setInputValue(e.target.value)}
-                    value={inputValue}
-                    onKeyPress={handleKeyPress}
-                />
-                <Button
-                    className="h-full px-5 text-white"
-                    variant="ghost"
-                    onClick={handleSendMessage}
-                >
-                    <Send size={20} />
+                    {/* Chat History */}
+                    <div className="flex flex-col overflow-y-auto gap-4 px-4 py-2 h-[75%] scroll-container bg-slate-950">
+                        {chatHistoryLocal.map((chat, index) => (
+                            <div
+                                key={index}
+                                className={`flex ${chat.role === "user" ? "justify-start" : "justify-end"
+                                    }`}
+                            >
+                                <div
+                                    className={`max-w-[70%] px-4 py-2 rounded-lg ${chat.role === "user"
+                                            ? "bg-blue-600 text-white"
+                                            : "bg-gray-800 text-white"
+                                        } shadow`}
+                                >
+                                    <p className="text-sm">{chat.text}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Input Box */}
+                    <div className="border-t border-gray-700 flex items-center bg-slate-800">
+                        <Input
+                            className="w-full h-full px-4 py-2 text-white bg-slate-800 outline-none placeholder-gray-400"
+                            placeholder="Write a message..."
+                            onChange={(e) => setInputValue(e.target.value)}
+                            value={inputValue}
+                            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                        />
+                        <Button
+                            className="h-full px-5 text-white"
+                            variant="ghost"
+                            onClick={handleSendMessage}
+                        >
+                            <Send size={20} />
+                        </Button>
+                    </div>
+                </div>
+            )}
+            {/* Chatbot Toggle Button */}
+            <div className="relative w-40 cursor-pointer">
+                <Button onClick={handleBotRelease} className="w-full h-12 gap-2 items-center bg-blue-600 text-white">
+                    <MessageCircle size={30} className="fill-white -rotate-90 stroke-none" />
+                    <span className="text-2xl font-semibold">CoinBot</span>
                 </Button>
             </div>
-        </div>
-    )}
-    {/* Chatbot Toggle Button */}
-    <div className="relative w-40 cursor-pointer">
-        <Button onClick={handleBotRelease} className="w-full h-12 gap-2 items-center bg-blue-600 text-white">
-            <MessageCircle size={30} className="fill-white -rotate-90 stroke-none" />
-            <span className="text-2xl font-semibold">CoinBot</span>
-        </Button>
-    </div>
-</section>
+        </section>
 
         </div>
     );
