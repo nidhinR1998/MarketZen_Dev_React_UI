@@ -1,6 +1,7 @@
 // State/AiChatBote/Action.js
 import axios from "axios";
 import { SEND_MESSAGE, RECEIVE_MESSAGE, SET_ERROR } from "./ActionType";
+import api from "@/config/api";
 
 export const sendMessage = (message) => ({
     type: SEND_MESSAGE,
@@ -23,8 +24,7 @@ export const fetchBotResponse = (prompt) => async (dispatch) => {
 
     try {
         // Call backend API
-        const response = await axios.post(
-            "http://localhost:5454/ai/chat/getData", // Replace with your backend endpoint
+        const response = await api.post(`/ai/chat/getData` ,
             { prompt }
         );
 
