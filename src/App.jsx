@@ -56,7 +56,8 @@ function App() {
                         <Route path="/email-otp" element={<EmailOTPForm />} /> 
                         <Route path="/change-password" element={<ChangePasswordForm />} />
                         {/* <Route path="*" element={<Notfound />} /> */}
-                        <Route path="*" element={<Home />} />
+                        <Route path="*" element={<Auth />} />
+                        {/* <Route path="*" element={<Home />} /> */}
                     </Routes>
                 </div>
             ) : (

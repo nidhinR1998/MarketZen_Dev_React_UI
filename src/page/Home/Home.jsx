@@ -87,6 +87,8 @@ const Home = () => {
         dispatch(getCoinList(currentPage));
     }, [currentPage]);
 
+    //Modified Code(Fix for One type new is not loading due to repetedly calling this method)
+    let lastExecutionTime = 0; // Variable to track the last execution time
     useEffect(() => {
         const fetchNews = async () => {
             const jwt = localStorage.getItem("jwt");
@@ -94,6 +96,20 @@ const Home = () => {
                 console.error("JWT token not found in localStorage");
                 return;
             }
+
+            const now = Date.now(); // Current timestamp in milliseconds
+            const timeSinceLastExecution = now - lastExecutionTime;
+
+            if (timeSinceLastExecution < 2000) {
+                console.log("Second call ignored. Details:", {
+                    currentTime: new Date(now).toISOString(),
+                    lastExecution: new Date(lastExecutionTime).toISOString(),
+                });
+                return; // Do not process the request
+            }
+
+            lastExecutionTime = now; // Update the last execution time
+
             try {
                 dispatch(getCryptoNews(jwt));
                 dispatch(getBusinessNews(jwt));
@@ -104,6 +120,26 @@ const Home = () => {
 
         fetchNews();
     }, []);
+
+
+    // Working Code 
+    // useEffect(() => {
+    //     const fetchNews = async () => {
+    //         const jwt = localStorage.getItem("jwt");
+    //         if (!jwt) {
+    //             console.error("JWT token not found in localStorage");
+    //             return;
+    //         }
+    //         try {
+    //             dispatch(getCryptoNews(jwt));
+    //             dispatch(getBusinessNews(jwt));
+    //         } catch (error) {
+    //             console.error("Failed to load news:", error);
+    //         }
+    //     };
+
+    //     fetchNews();
+    // }, []);
 
 
     return (
@@ -221,7 +257,7 @@ const Home = () => {
                 <div className="rounded-md w-96 md:w-[28rem] h-[28rem] md:h-[70vh] bg-slate-900 shadow-lg border border-gray-700">
                     {/* Chatbot Header */}
                     <div className="flex justify-between items-center border-b border-gray-700 px-6 py-3 bg-slate-800 text-white">
-                        <p className="font-bold text-lg">CoinBot</p>
+                        <p className="font-bold text-lg">AI Bot</p>
                         <Button onClick={handleBotRelease} variant="ghost" size="icon">
                             <Cross1Icon className="text-white" />
                         </Button>
@@ -270,7 +306,7 @@ const Home = () => {
             <div className="relative w-40 cursor-pointer">
                 <Button onClick={handleBotRelease} className="w-full h-12 gap-2 items-center bg-blue-600 text-white">
                     <MessageCircle size={30} className="fill-white -rotate-90 stroke-none" />
-                    <span className="text-2xl font-semibold">CoinBot</span>
+                    <span className="text-2xl font-semibold">AI Bot</span>
                 </Button>
             </div>
         </section>
