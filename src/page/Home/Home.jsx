@@ -17,7 +17,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
-import { getBusinessNews, getCryptoNews } from '@/State/News/Action';
+import { getBusinessNews, getCryptoNews, getPoliticalNews, getSportsNews } from '@/State/News/Action';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { fetchBotResponse } from '@/State/AiChatBote/Action';
 
@@ -87,7 +87,7 @@ const Home = () => {
         dispatch(getCoinList(currentPage));
     }, [currentPage]);
 
-    //Modified Code(Fix for One type new is not loading due to repetedly calling this method)
+    //Modified Code(Fix for One type news is not loading due to repetedly calling this method)
     let lastExecutionTime = 0; // Variable to track the last execution time
     useEffect(() => {
         const fetchNews = async () => {
@@ -100,7 +100,7 @@ const Home = () => {
             const now = Date.now(); // Current timestamp in milliseconds
             const timeSinceLastExecution = now - lastExecutionTime;
 
-            if (timeSinceLastExecution < 2000) {
+            if (timeSinceLastExecution < 3000) {
                 console.log("Second call ignored. Details:", {
                     currentTime: new Date(now).toISOString(),
                     lastExecution: new Date(lastExecutionTime).toISOString(),
@@ -113,6 +113,8 @@ const Home = () => {
             try {
                 dispatch(getCryptoNews(jwt));
                 dispatch(getBusinessNews(jwt));
+                dispatch(getSportsNews(jwt));
+                dispatch(getPoliticalNews(jwt));
             } catch (error) {
                 console.error("Failed to load news:", error);
             }
@@ -199,117 +201,122 @@ const Home = () => {
             </div>
 
             {/* News Section */}
-            <div className="relative p-4">
-                <div className="flex flex-col lg:flex-row gap-4">
-                    {/* Business News */}
-                    <div className="lg:w-1/2">
-                        <h2 className="text-xl font-bold mb-4">BUSINESS NEWS</h2>
-                        {news.businessArticles?.map((item, index) => (
-                            <Card key={index} className="mb-6 border shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105 flex">
-                                {item.image && (
-                                    <img
-                                        src={item.image}
-                                        alt={item.title}
-                                        className="w-32 h-32 object-cover rounded-l-md"
-                                    />
-                                )}
-                                <div className="flex-1 p-4">
-                                    <CardTitle className="text-lg font-semibold hover:underline">{item.title}</CardTitle>
-                                    <CardDescription className="text-sm text-gray-500">{new Date(item.publishedAt).toLocaleDateString()}</CardDescription>
-                                    <CardContent>
-                                        <p className="text-gray-700 mb-2">{item.description}</p>
-                                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Read more</a>
-                                    </CardContent>
+            {/* <div className="relative p-4 bg-gradient-to-r from-gray-800 to-gray-900 min-h-screen text-gray-100"> */}
+            <div className="relative p-4 bg-gradient-to-r from-gray-399 to-gray-400 min-h-screen text-gray-100">
+            <div className="flex flex-col gap-16">
+                {/* Section Component */}
+                {[
+                    { title: "Business News", data: news.businessArticles },
+                    { title: "Crypto News", data: news.cryptoArticles },
+                    { title: "Sports News", data: news.sportsArticles },
+                    { title: "Political News", data: news.politicalArticles },
+                ].map((section, index) => (
+                    <div key={index} className="w-full">
+                        {/* News Type Name */}
+                        <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-6">
+                            {section.title}
+                        </h2>
+                        {/* News Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                            {section.data?.map((item, idx) => (
+                                <div
+                                    key={idx}
+                                    className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105"
+                                >
+                                    {item.image && (
+                                        <img
+                                            src={item.image}
+                                            alt={item.title}
+                                            className="w-full h-48 object-cover"
+                                        />
+                                    )}
+                                    <div className="p-6 flex flex-col gap-4">
+                                        <h3 className="text-lg font-bold text-blue-400 hover:underline">
+                                            {item.title}
+                                        </h3>
+                                        <p className="text-sm text-gray-400">
+                                            Published on:{" "}
+                                            {new Date(item.publishedAt).toLocaleDateString()}
+                                        </p>
+                                        <p className="text-gray-300 line-clamp-3">
+                                            {item.description}
+                                        </p>
+                                        <a
+                                            href={item.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="self-start mt-auto text-purple-500 hover:text-purple-300"
+                                        >
+                                            Read more →
+                                        </a>
+                                    </div>
                                 </div>
-                            </Card>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-
-                    {/* Crypto News */}
-                    <div className="lg:w-1/2">
-                        <h2 className="text-xl font-bold mb-4">CRYPTO NEWS</h2>
-                        {news.cryptoArticles?.map((article, index) => (
-                            <Card key={index} className="mb-6 border shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105 flex">
-                                {article.image && (
-                                    <img
-                                        src={article.image}
-                                        alt={article.title}
-                                        className="w-32 h-32 object-cover rounded-l-md"
-                                    />
-                                )}
-                                <div className="flex-1 p-4">
-                                    <CardTitle className="text-lg font-semibold hover:underline">{article.title}</CardTitle>
-                                    <CardDescription className="text-sm text-gray-500">{new Date(article.publishedAt).toLocaleDateString()}</CardDescription>
-                                    <CardContent>
-                                        <p className="text-gray-700 mb-2">{article.description}</p>
-                                        <a href={article.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Read more</a>
-                                    </CardContent>
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
-                </div>
+                ))}
             </div>
+        </div>
 
             {/* Chatbot Section */}
             <section className="fixed bottom-5 right-5 z-40 flex flex-col justify-end items-end gap-2">
-            {isBotRelease && (
-                <div className="rounded-md w-96 md:w-[28rem] h-[28rem] md:h-[70vh] bg-slate-900 shadow-lg border border-gray-700">
-                    {/* Chatbot Header */}
-                    <div className="flex justify-between items-center border-b border-gray-700 px-6 py-3 bg-slate-800 text-white">
-                        <p className="font-bold text-lg">AI Bot</p>
-                        <Button onClick={handleBotRelease} variant="ghost" size="icon">
-                            <Cross1Icon className="text-white" />
-                        </Button>
-                    </div>
+                {isBotRelease && (
+                    <div className="rounded-md w-96 md:w-[28rem] h-[28rem] md:h-[70vh] bg-slate-900 shadow-lg border border-gray-700">
+                        {/* Chatbot Header */}
+                        <div className="flex justify-between items-center border-b border-gray-700 px-6 py-3 bg-slate-800 text-white">
+                            <p className="font-bold text-lg">Coin Bot</p>
+                            <Button onClick={handleBotRelease} variant="ghost" size="icon">
+                                <Cross1Icon className="text-white" />
+                            </Button>
+                        </div>
 
-                    {/* Chat History */}
-                    <div className="flex flex-col overflow-y-auto gap-4 px-4 py-2 h-[75%] scroll-container bg-slate-950">
-                        {chatHistoryLocal.map((chat, index) => (
-                            <div
-                                key={index}
-                                className={`flex ${chat.role === "user" ? "justify-start" : "justify-end"
-                                    }`}
-                            >
+                        {/* Chat History */}
+                        <div className="flex flex-col overflow-y-auto gap-4 px-4 py-2 h-[75%] scroll-container bg-slate-950">
+                            {chatHistoryLocal.map((chat, index) => (
                                 <div
-                                    className={`max-w-[70%] px-4 py-2 rounded-lg ${chat.role === "user"
+                                    key={index}
+                                    className={`flex ${chat.role === "user" ? "justify-start" : "justify-end"
+                                        }`}
+                                >
+                                    <div
+                                        className={`max-w-[70%] px-4 py-2 rounded-lg ${chat.role === "user"
                                             ? "bg-blue-600 text-white"
                                             : "bg-gray-800 text-white"
-                                        } shadow`}
-                                >
-                                    <p className="text-sm">{chat.text}</p>
+                                            } shadow`}
+                                    >
+                                        <p className="text-sm">{chat.text}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
 
-                    {/* Input Box */}
-                    <div className="border-t border-gray-700 flex items-center bg-slate-800">
-                        <Input
-                            className="w-full h-full px-4 py-2 text-white bg-slate-800 outline-none placeholder-gray-400"
-                            placeholder="Write a message..."
-                            onChange={(e) => setInputValue(e.target.value)}
-                            value={inputValue}
-                            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                        />
-                        <Button
-                            className="h-full px-5 text-white"
-                            variant="ghost"
-                            onClick={handleSendMessage}
-                        >
-                            <Send size={20} />
-                        </Button>
+                        {/* Input Box */}
+                        <div className="border-t border-gray-700 flex items-center bg-slate-800">
+                            <Input
+                                className="w-full h-full px-4 py-2 text-white bg-slate-800 outline-none placeholder-gray-400"
+                                placeholder="Write a message..."
+                                onChange={(e) => setInputValue(e.target.value)}
+                                value={inputValue}
+                                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                            />
+                            <Button
+                                className="h-full px-5 text-white"
+                                variant="ghost"
+                                onClick={handleSendMessage}
+                            >
+                                <Send size={20} />
+                            </Button>
+                        </div>
                     </div>
+                )}
+                {/* Chatbot Toggle Button */}
+                <div className="relative w-40 cursor-pointer">
+                    <Button onClick={handleBotRelease} className="w-full h-12 gap-2 items-center bg-blue-600 text-white">
+                        <MessageCircle size={30} className="fill-white -rotate-90 stroke-none" />
+                        <span className="text-2xl font-semibold">Coin Bot</span>
+                    </Button>
                 </div>
-            )}
-            {/* Chatbot Toggle Button */}
-            <div className="relative w-40 cursor-pointer">
-                <Button onClick={handleBotRelease} className="w-full h-12 gap-2 items-center bg-blue-600 text-white">
-                    <MessageCircle size={30} className="fill-white -rotate-90 stroke-none" />
-                    <span className="text-2xl font-semibold">AI Bot</span>
-                </Button>
-            </div>
-        </section>
+            </section>
 
         </div>
     );

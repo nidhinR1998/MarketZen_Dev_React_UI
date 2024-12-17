@@ -18,6 +18,7 @@ import { store } from "./State/Store";
 import { useEffect } from "react";
 import { getUser } from "./State/Auth/Action";
 import ChangePasswordForm from "./page/Auth/ChangePasswordForm";
+import Footer from "./page/Navbar/Footer";
 
 function App() {
     const { auth } = useSelector(store => store);
@@ -41,6 +42,7 @@ function App() {
             {auth.user ? (
                 <div>
                     <Navbar />
+                   
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/portfolio" element={<Portfolio />} />
@@ -59,6 +61,7 @@ function App() {
                         <Route path="*" element={<Auth />} />
                         {/* <Route path="*" element={<Home />} /> */}
                     </Routes>
+                    <Footer/>
                 </div>
             ) : (
                 // Public routes or redirect to Auth
